@@ -1,3 +1,24 @@
+function saveInvoiceDataToLocalStorage() {
+  const data = {
+    clientName: document.getElementById("clientName").value,
+    clientAddress: document.getElementById("clientAddress").value,
+    clientPhone: document.getElementById("clientPhone").value,
+    clientEmail: document.getElementById("clientEmail").value,
+    invoiceNumber: document.getElementById("invoiceNumber").value,
+  };
+  localStorage.setItem("invoiceData", JSON.stringify(data));
+}
+
+function loadInvoiceDataFromLocalStorage() {
+  const data = JSON.parse(localStorage.getItem("invoiceData"));
+  if (!data) return;
+  document.getElementById("clientName").value = data.clientName || "";
+  document.getElementById("clientAddress").value = data.clientAddress || "";
+  document.getElementById("clientPhone").value = data.clientPhone || "";
+  document.getElementById("clientEmail").value = data.clientEmail || "";
+  document.getElementById("invoiceNumber").value = data.invoiceNumber || "";
+}
+
 function formatCurrency(value) {
   let newvalue = new Intl.NumberFormat("es-CO", {
     minimumFractionDigits: 0,
@@ -179,3 +200,17 @@ function downloadPDF() {
 
   html2pdf().set(opt).from(element).save();
 }
+
+[
+  "clientName",
+  "clientAddress",
+  "clientPhone",
+  "clientEmail",
+  "invoiceNumber",
+].forEach((id) => {
+  document
+    .getElementById(id)
+    .addEventListener("input", saveInvoiceDataToLocalStorage);
+});
+
+window.addEventListener("DOMContentLoaded", loadInvoiceDataFromLocalStorage);
