@@ -8,11 +8,13 @@ function saveInvoiceDataToLocalStorage() {
     invoiceDate: document.getElementById("invoiceDate").value,
     dueDate: document.getElementById("dueDate").value,
     notes: document.getElementById("notes").value,
-    items: Array.from(document.querySelectorAll("#itemsBody tr")).map(row => ({
-      description: row.querySelector(".desc").value,
-      quantity: row.querySelector(".qty").value,
-      unitPrice: row.querySelector(".price").value
-    }))
+    items: Array.from(document.querySelectorAll("#itemsBody tr")).map(
+      (row) => ({
+        description: row.querySelector(".desc").value,
+        quantity: row.querySelector(".qty").value,
+        unitPrice: row.querySelector(".price").value,
+      })
+    ),
   };
   localStorage.setItem("invoiceData", JSON.stringify(data));
 }
@@ -32,7 +34,7 @@ function loadInvoiceDataFromLocalStorage() {
   const tbody = document.getElementById("itemsBody");
   tbody.innerHTML = "";
   if (data.items && Array.isArray(data.items)) {
-    data.items.forEach(item => {
+    data.items.forEach((item) => {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>Hours</td>
