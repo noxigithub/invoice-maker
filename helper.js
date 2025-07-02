@@ -1,3 +1,56 @@
+function saveInvoiceDataToLocalStorage() {
+  const data = {
+    clientName: document.getElementById("clientName").value,
+    clientAddress: document.getElementById("clientAddress").value,
+    clientPhone: document.getElementById("clientPhone").value,
+    clientEmail: document.getElementById("clientEmail").value,
+    invoiceNumber: document.getElementById("invoiceNumber").value,
+    invoiceDate: document.getElementById("invoiceDate").value,
+    dueDate: document.getElementById("dueDate").value,
+    notes: document.getElementById("notes").value,
+    items: Array.from(document.querySelectorAll("#itemsBody tr")).map(row => ({
+      description: row.querySelector(".desc").value,
+      quantity: row.querySelector(".qty").value,
+      unitPrice: row.querySelector(".price").value
+    }))
+  };
+  localStorage.setItem("invoiceData", JSON.stringify(data));
+}
+
+function loadInvoiceDataFromLocalStorage() {
+  const data = JSON.parse(localStorage.getItem("invoiceData"));
+  if (!data) return;
+  document.getElementById("clientName").value = data.clientName || "";
+  document.getElementById("clientAddress").value = data.clientAddress || "";
+  document.getElementById("clientPhone").value = data.clientPhone || "";
+  document.getElementById("clientEmail").value = data.clientEmail || "";
+  document.getElementById("invoiceNumber").value = data.invoiceNumber || "";
+  document.getElementById("invoiceDate").value = data.invoiceDate || "";
+  document.getElementById("dueDate").value = data.dueDate || "";
+  document.getElementById("notes").value = data.notes || "";
+  // Clear existing items
+  const tbody = document.getElementById("itemsBody");
+  tbody.innerHTML = "";
+  if (data.items && Array.isArray(data.items)) {
+    data.items.forEach(item => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>Hours</td>
+        <td><input type="text" class="desc" placeholder="Item description" value="${item.description}"></td>
+        <td><input type="number" class="qty" value="${item.quantity}" onchange="updateTotals()"></td>
+        <td><input type="number" class="price" value="${item.unitPrice}" onchange="updateTotals()"></td>
+        <td class="lineTotal">$0.00</td>
+        <td>
+          <button onclick="removeItem(this)">Remove</button>
+          <button onclick="duplicateItem(this)">Duplicate</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+    updateTotals();
+  }
+}
+
 function formatCurrency(value) {
   let newvalue = new Intl.NumberFormat("es-CO", {
     minimumFractionDigits: 0,
@@ -123,7 +176,7 @@ function generatePreview() {
 </div>
 
     <div style="text-align:left; margin-bottom:20px;">
-    <h1>Teacher David’s Academy </h1>
+    <h1>Teacher David's Academy </h1>
     <p>Teacherdavidacademy@outlook.com<br>+57 313 209-7884
 <br>Pereira, Risaralda<br></p>
   </div>
@@ -179,3 +232,32 @@ function downloadPDF() {
 
   html2pdf().set(opt).from(element).save();
 }
+
+[
+  "clientName",
+  "clientAddress",
+  "clientPhone",
+  "clientEmail",
+  "invoiceNumber",
+  "invoiceDate",
+  "dueDate",
+  "notes",
+].forEach((id) => {
+  document
+    .getElementById(id)
+    .addEventListener("input", saveInvoiceDataToLocalStorage);
+});
+
+// Add event delegation for item changes in the table
+const itemsBody = document.getElementById("itemsBody");
+itemsBody.addEventListener("input", function (e) {
+  if (
+    e.target.classList.contains("desc") ||
+    e.target.classList.contains("qty") ||
+    e.target.classList.contains("price")
+  ) {
+    saveInvoiceDataToLocalStorage();
+  }
+});
+
+window.addEventListener("DOMContentLoaded", loadInvoiceDataFromLocalStorage);
